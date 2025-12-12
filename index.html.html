@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Trivia de AMR Ingeniería - Desafío de conocimiento corporativo">
+    <meta name="theme-color" content="#0a4d8f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Trivia AMR Ingeniería | Desafío por Tiempo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0a4d8f;
+            --secondary: #00d4ff;
+            --accent: #ff6b35;
+            --dark: #0a0e1a;
+            --light: #f0f4f8;
+            --success: #00c896;
+            --error: #ff3860;
+            --warning: #ffd700;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f3a 50%, #0a4d8f 100%);
+            min-height: 100vh;
+            color: var(--light);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 107, 53, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        .company-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--secondary);
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 1rem 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--light);
+        }
+
+        .timer-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .timer {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 3px solid var(--secondary);
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .timer.warning {
+            border-color: var(--warning);
+            animation: shake 0.5s ease-in-out infinite;
+        }
+
+        .timer.danger {
+            border-color: var(--error);
+            animation: shake 0.3s ease-in-out infinite;
+        }
+
+        .timer-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--secondary);
+        }
+
+        .timer.warning .timer-value {
+            color: var(--warning);
+        }
+
+        .timer.danger .timer-value {
+            color: var(--error);
+        }
+
+        .timer-label {
+            font-size: 0.8rem;
+            color: var(--light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 212, 255, 0.2);
+            border-radius: 25px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+            min-height: 400px;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .question-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--secondary);
+            font-weight: 700;
+        }
+
+        .card-number {
+            font-size: 0.9rem;
+            color: var(--light);
+            opacity: 0.6;
+        }
+
+        .question-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+            color: var(--light);
+            min-height: 80px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .option {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: var(--secondary);
+            transform: translateX(10px);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        @media (hover: none) {
+            .option:hover:not(.disabled) {
+                transform: none;
+            }
+        }
+
+        .option.selected {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: var(--secondary);
+        }
+
+        .option.correct {
+            background: rgba(0, 200, 150, 0.3) !important;
+            border-color: var(--success) !important;
+            animation: correctPulse 0.6s ease;
+        }
+
+        .option.incorrect {
+            background: rgba(255, 56, 96, 0.3) !important;
+            border-color: var(--error) !important;
+            animation: shake 0.5s ease;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .points-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            animation: bounceIn 0.5s ease;
+        }
+
+        .button-container {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .btn {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #444, #666);
+            margin-left: 1rem;
+        }
+
+        .start-screen {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .start-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            color: var(--light);
+        }
+
+        .start-description {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            color: var(--light);
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .player-input-container {
+            margin: 2rem 0;
+        }
+
+        .player-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 1rem 1.5rem;
+            font-size: 1.2rem;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+            color: var(--light);
+            text-align: center;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .player-input::placeholder {
+            color: rgba(240, 244, 248, 0.5);
+        }
+
+        .player-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .rule {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .rule-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .rule-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--light);
+            line-height: 1.4;
+        }
+
+        .result-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .result-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            animation: scaleIn 0.5s ease;
+        }
+
+        .result-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-score {
+            font-size: 4rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            color: var(--secondary);
+            margin: 1rem 0;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .result-message {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: var(--light);
+            font-weight: 600;
+        }
+
+        .leaderboard {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 212, 255, 0.2);
+            border-radius: 25px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .leaderboard-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .leaderboard-list {
+            list-style: none;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            transform: translateX(5px);
+            border-color: var(--secondary);
+        }
+
+        .leaderboard-item.highlight {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: var(--secondary);
+            animation: glow 1s ease-in-out infinite;
+        }
+
+        .leaderboard-rank {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--accent);
+            min-width: 50px;
+        }
+
+        .leaderboard-rank.gold {
+            color: #ffd700;
+        }
+
+        .leaderboard-rank.silver {
+            color: #c0c0c0;
+        }
+
+        .leaderboard-rank.bronze {
+            color: #cd7f32;
+        }
+
+        .leaderboard-player {
+            flex: 1;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--light);
+        }
+
+        .leaderboard-score {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--secondary);
+        }
+
+        .leaderboard-details {
+            font-size: 0.9rem;
+            color: var(--light);
+            opacity: 0.7;
+            margin-left: 1rem;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-5px);
+            }
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        @keyframes correctPulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .company-name {
+                font-size: 1.8rem;
+                letter-spacing: 2px;
+            }
+
+            .tagline {
+                font-size: 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 1.5rem 1rem;
+            }
+
+            .question-text {
+                font-size: 1.3rem;
+                min-height: auto;
+                margin-bottom: 1.5rem;
+            }
+
+            .option {
+                padding: 1.2rem 1rem;
+                font-size: 1.1rem;
+                min-height: 60px;
+                display: flex;
+                align-items: center;
+            }
+
+            .timer {
+                width: 90px;
+                height: 90px;
+            }
+
+            .timer-value {
+                font-size: 2.2rem;
+            }
+
+            .timer-label {
+                font-size: 0.7rem;
+            }
+
+            .btn {
+                padding: 1rem 2rem;
+                font-size: 1.1rem;
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .btn-secondary {
+                margin-left: 0;
+                margin-top: 1rem;
+            }
+
+            .stats-bar {
+                gap: 0.5rem;
+            }
+
+            .stat {
+                min-width: 100px;
+                padding: 0.8rem 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+            }
+
+            .start-title {
+                font-size: 1.8rem;
+            }
+
+            .start-description {
+                font-size: 1.1rem;
+            }
+
+            .rules-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .rule-text {
+                font-size: 1rem;
+            }
+
+            .leaderboard {
+                padding: 1.5rem 1rem;
+            }
+
+            .leaderboard-title {
+                font-size: 1.5rem;
+            }
+
+            .leaderboard-item {
+                padding: 0.8rem 1rem;
+                flex-wrap: wrap;
+            }
+
+            .leaderboard-player {
+                font-size: 1.1rem;
+            }
+
+            .leaderboard-score {
+                font-size: 1.3rem;
+            }
+
+            .leaderboard-details {
+                width: 100%;
+                margin-left: 0;
+                margin-top: 0.3rem;
+                font-size: 0.8rem;
+            }
+
+            .result-score {
+                font-size: 3rem;
+            }
+
+            .result-title {
+                font-size: 2rem;
+            }
+
+            .result-message {
+                font-size: 1.2rem;
+            }
+
+            .question-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .points-indicator {
+                top: 0.5rem;
+                right: 0.5rem;
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .company-name {
+                font-size: 1.5rem;
+            }
+
+            .question-text {
+                font-size: 1.2rem;
+            }
+
+            .option {
+                font-size: 1rem;
+                padding: 1rem 0.8rem;
+            }
+
+            .timer {
+                width: 80px;
+                height: 80px;
+            }
+
+            .timer-value {
+                font-size: 2rem;
+            }
+
+            .stat-value {
+                font-size: 1.3rem;
+            }
+
+            .player-input {
+                font-size: 1.1rem;
+                padding: 0.9rem 1.2rem;
+            }
+        }
+
+        /* Mejoras para touch en móviles */
+        @media (hover: none) and (pointer: coarse) {
+            .option:active {
+                transform: scale(0.98);
+            }
+
+            .btn:active {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="company-name">AMR Ingeniería</h1>
+            <p class="tagline">Desafío de Conocimiento Corporativo</p>
+        </div>
+
+        <div id="app"></div>
+    </div>
+
+    <script>
+        const allQuestions = [
+            // Preguntas sobre ubicación y oficinas (1-5)
+            {
+                id: 1,
+                question: "¿En qué calle se encuentra la oficina técnica de AMR Ingeniería?",
+                options: ["Zelaya 1142", "Boulevard Rondeau 101", "Avenida Pellegrini 1500"],
+                correct: 0,
+                explanation: "La oficina técnica está en Zelaya 1142, Rosario."
+            },
+            {
+                id: 2,
+                question: "¿Dónde está ubicada la oficina comercial de AMR?",
+                options: ["En el Polo Tecnológico", "Hotel Mercure, Blvd. Rondeau 101", "Alto Rosario Shopping"],
+                correct: 1,
+                explanation: "La oficina comercial funciona en el Hotel Mercure, Boulevard Rondeau 101."
+            },
+            {
+                id: 3,
+                question: "¿De qué organización es miembro AMR Ingeniería en Rosario?",
+                options: ["Cámara de Comercio", "Polo Tecnológico Rosario", "Federación Industrial"],
+                correct: 1,
+                explanation: "AMR es miembro del Polo Tecnológico Rosario."
+            },
+            {
+                id: 4,
+                question: "¿En qué provincia argentina se encuentra AMR Ingeniería?",
+                options: ["Buenos Aires", "Santa Fe", "Córdoba"],
+                correct: 1,
+                explanation: "AMR Ingeniería está en Rosario, provincia de Santa Fe."
+            },
+            {
+                id: 5,
+                question: "¿Cuántas oficinas tiene AMR en Rosario?",
+                options: ["Una sola oficina", "Dos oficinas: técnica y comercial", "Tres oficinas distribuidas"],
+                correct: 1,
+                explanation: "AMR cuenta con dos oficinas: una técnica en Zelaya y una comercial en el Hotel Mercure."
+            },
+            // Preguntas sobre servicios (6-15)
+            {
+                id: 6,
+                question: "¿Qué tipo de montajes realiza AMR Ingeniería?",
+                options: ["Solo montajes residenciales", "Montajes eléctricos de gran magnitud", "Únicamente montajes decorativos"],
+                correct: 1,
+                explanation: "AMR se especializa en montajes eléctricos industriales de gran magnitud."
+            },
+            {
+                id: 7,
+                question: "¿Qué incluyen los sistemas de seguridad integral de AMR?",
+                options: ["Solo cámaras de video", "Video, alarmas domotizadas y detectores", "Únicamente alarmas básicas"],
+                correct: 1,
+                explanation: "Los sistemas incluyen video, alarmas con centrales domotizadas y detectores de movimiento/temperatura."
+            },
+            {
+                id: 8,
+                question: "¿Cómo se gestionan las alarmas instaladas por AMR?",
+                options: ["Solo manualmente in situ", "Vía aplicación móvil", "Por teléfono únicamente"],
+                correct: 1,
+                explanation: "Las centrales domotizadas se gestionan mediante aplicación móvil."
+            },
+            {
+                id: 9,
+                question: "¿Qué tipo de aceros maneja AMR en proyectos industriales?",
+                options: ["Aceros decorativos pequeños", "Aceros industriales de gran magnitud", "Solo aceros para construcción liviana"],
+                correct: 1,
+                explanation: "AMR trabaja con aceros industriales de gran magnitud para proyectos de envergadura."
+            },
+            {
+                id: 10,
+                question: "¿Qué sistemas de energía alternativa ofrece AMR?",
+                options: ["Solo turbinas eólicas", "Paneles solares con transmisión de datos", "Únicamente generadores diesel"],
+                correct: 1,
+                explanation: "AMR instala paneles solares con sistemas de transmisión de datos a aplicaciones."
+            },
+            {
+                id: 11,
+                question: "¿Qué abarca el servicio de 'corrientes débiles' de AMR?",
+                options: ["Solo instalación eléctrica básica", "Sistemas de datos, video y control", "Únicamente iluminación LED"],
+                correct: 1,
+                explanation: "Corrientes débiles incluye sistemas de comunicación, datos, video vigilancia y control de acceso."
+            },
+            {
+                id: 12,
+                question: "¿Qué incluye el servicio de instalación contra incendios de AMR?",
+                options: ["Solo extintores", "Detección temprana, alarma y extinción", "Únicamente señalización"],
+                correct: 1,
+                explanation: "AMR instala sistemas completos: redes, detección temprana, alarma y extinción."
+            },
+            {
+                id: 13,
+                question: "¿Para qué sector ofrece AMR soluciones de paneles solares?",
+                options: ["Solo para industrias", "Para el campo con monitoreo remoto", "Únicamente para shoppings"],
+                correct: 1,
+                explanation: "AMR ofrece paneles solares especialmente para el campo, con transmisión de datos."
+            },
+            {
+                id: 14,
+                question: "¿Qué tipo de automatización realiza AMR?",
+                options: ["Solo domótica residencial", "Automatización de sistemas para fábricas", "Únicamente control de iluminación"],
+                correct: 1,
+                explanation: "AMR se especializa en automatización de sistemas industriales para fábricas."
+            },
+            {
+                id: 15,
+                question: "¿Qué alcance tienen los proyectos industriales de AMR?",
+                options: ["Solo la instalación final", "Desde concepción hasta implementación", "Únicamente mantenimiento"],
+                correct: 1,
+                explanation: "AMR ofrece gestión integral desde la concepción del proyecto hasta su implementación completa."
+            },
+            // Preguntas sobre proyectos (16-25)
+            {
+                id: 16,
+                question: "¿En qué shopping realizó AMR la red de incendio y cableados eléctricos?",
+                options: ["Portal Rosario Shopping", "Alto Rosario Shopping", "Patio Olmos Shopping"],
+                correct: 1,
+                explanation: "En Alto Rosario Shopping, AMR realizó red de incendio y cableados eléctricos."
+            },
+            {
+                id: 17,
+                question: "¿Qué trabajos hizo AMR en Portal Rosario Shopping?",
+                options: ["Solo iluminación", "Red de incendio y tendido de media tensión", "Únicamente aire acondicionado"],
+                correct: 1,
+                explanation: "En Portal Rosario realizó red de incendio y tendido de media tensión."
+            },
+            {
+                id: 18,
+                question: "¿En qué proyecto de planta de energía trabajó AMR?",
+                options: ["Central Nuclear Atucha", "SECCO - Planta generadora", "Hidroeléctrica Yacyretá"],
+                correct: 1,
+                explanation: "AMR instaló sistemas de video y detección de incendio en SECCO."
+            },
+            {
+                id: 19,
+                question: "¿Qué sistemas instaló AMR en la planta SECCO?",
+                options: ["Solo cableado eléctrico", "Video y detección de incendio", "Únicamente paneles solares"],
+                correct: 1,
+                explanation: "En SECCO, AMR implementó sistemas de video vigilancia y detección de incendio."
+            },
+            {
+                id: 20,
+                question: "¿Cuántos proyectos en shoppings menciona AMR como referencia?",
+                options: ["Un shopping", "Dos shoppings", "Tres shoppings"],
+                correct: 1,
+                explanation: "AMR menciona dos shoppings: Alto Rosario y Portal Rosario."
+            },
+            {
+                id: 21,
+                question: "¿Qué tipo de tensión eléctrica manejó AMR en Portal Rosario?",
+                options: ["Baja tensión únicamente", "Media tensión", "Alta tensión"],
+                correct: 1,
+                explanation: "AMR realizó el tendido de media tensión en Portal Rosario Shopping."
+            },
+            {
+                id: 22,
+                question: "¿En cuántos proyectos de referencia trabajó AMR en sistemas de incendio?",
+                options: ["Solo en uno", "En dos proyectos", "En los tres proyectos mencionados"],
+                correct: 2,
+                explanation: "AMR trabajó en sistemas de incendio en Alto Rosario, Portal Rosario y SECCO."
+            },
+            {
+                id: 23,
+                question: "¿Qué característica común tienen los proyectos de referencia de AMR?",
+                options: ["Son todos residenciales", "Todos incluyen sistemas de seguridad o incendio", "Son solo proyectos pequeños"],
+                correct: 1,
+                explanation: "Los tres proyectos destacados incluyen sistemas de seguridad, video o detección de incendio."
+            },
+            {
+                id: 24,
+                question: "¿Qué tipo de infraestructura caracteriza los proyectos de AMR?",
+                options: ["Solo proyectos pequeños", "Proyectos de gran magnitud", "Únicamente mantenimiento"],
+                correct: 1,
+                explanation: "AMR se especializa en proyectos industriales y comerciales de gran magnitud."
+            },
+            {
+                id: 25,
+                question: "¿En qué tipo de instalaciones ha trabajado AMR?",
+                options: ["Solo oficinas", "Shoppings, plantas industriales y fábricas", "Únicamente casas"],
+                correct: 1,
+                explanation: "AMR ha trabajado en shoppings (Alto y Portal Rosario), plantas generadoras (SECCO) y fábricas."
+            },
+            // Preguntas sobre equipo y organización (26-35)
+            {
+                id: 26,
+                question: "¿Quién es el dueño y fundador de AMR Ingeniería?",
+                options: ["Lisandro", "Claudio", "Cristian"],
+                correct: 1,
+                explanation: "Claudio es el dueño y fundador de AMR Ingeniería."
+            },
+            {
+                id: 27,
+                question: "¿Quiénes son los hijos de Claudio que trabajan en AMR?",
+                options: ["Franco y Brian", "Lisandro y Chiari", "Cristian y Leonardo"],
+                correct: 1,
+                explanation: "Los hijos de Claudio que continúan en la empresa son Lisandro y Chiari."
+            },
+            {
+                id: 28,
+                question: "¿Quién está a cargo del área de administración en AMR?",
+                options: ["Yoa", "Jesica", "Chiari"],
+                correct: 1,
+                explanation: "Jesica es la responsable del área de administración."
+            },
+            {
+                id: 29,
+                question: "¿Qué área maneja Yoa en AMR Ingeniería?",
+                options: ["Ventas", "Arquitectura", "Administración"],
+                correct: 1,
+                explanation: "Yoa está a cargo del área de arquitectura en AMR."
+            },
+            {
+                id: 30,
+                question: "¿Quién lidera el equipo de ventas de AMR?",
+                options: ["Cristian", "Lisandro", "Franco"],
+                correct: 0,
+                explanation: "Cristian es el responsable del área de ventas."
+            },
+            {
+                id: 31,
+                question: "¿Cuántas personas conforman aproximadamente el equipo técnico operativo de AMR?",
+                options: ["3 personas", "7 personas: Rama, Franco, Cristian, Brian, Leonardo, Alan y Lautaro", "2 personas"],
+                correct: 1,
+                explanation: "El equipo técnico está formado por Rama, Franco, Cristian, Brian, Leonardo, Alan y Lautaro."
+            },
+            {
+                id: 32,
+                question: "¿Qué estructura familiar caracteriza a AMR Ingeniería?",
+                options: ["No es empresa familiar", "Empresa familiar de segunda generación", "Solo fundador sin familiares"],
+                correct: 1,
+                explanation: "AMR es una empresa familiar donde los hijos de Claudio (Lisandro y Chiari) continúan el legado."
+            },
+            {
+                id: 33,
+                question: "¿Cuántas áreas funcionales principales tiene AMR?",
+                options: ["Dos áreas", "Tres áreas: Administración, Arquitectura y Ventas", "Solo una área general"],
+                correct: 1,
+                explanation: "AMR tiene definidas tres áreas principales: Administración (Jesica), Arquitectura (Yoa) y Ventas (Cristian)."
+            },
+            {
+                id: 34,
+                question: "¿Quién forma parte del equipo técnico y también es hijo del fundador?",
+                options: ["Ninguno", "Lisandro", "Franco"],
+                correct: 1,
+                explanation: "Lisandro, hijo de Claudio, forma parte activa del equipo de AMR."
+            },
+            {
+                id: 35,
+                question: "¿Cuál es la característica del equipo de AMR?",
+                options: ["Solo contratistas externos", "Equipo multidisciplinario con áreas especializadas", "Un solo empleado"],
+                correct: 1,
+                explanation: "AMR cuenta con un equipo multidisciplinario: administración, arquitectura, ventas y técnicos especializados."
+            },
+            // Preguntas técnicas y especializadas (36-45)
+            {
+                id: 36,
+                question: "¿Qué detectan los sensores de las alarmas domotizadas de AMR?",
+                options: ["Solo movimiento", "Movimiento y temperatura", "Solo sonido"],
+                correct: 1,
+                explanation: "Las alarmas incluyen detectores de movimiento y temperatura para protección integral."
+            },
+            {
+                id: 37,
+                question: "¿Qué permite la transmisión de datos en los paneles solares de AMR?",
+                options: ["Solo ver consumo local", "Monitoreo remoto vía aplicación", "Nada, no transmiten datos"],
+                correct: 1,
+                explanation: "Los paneles solares incluyen sistemas de transmisión de datos para monitoreo remoto mediante apps."
+            },
+            {
+                id: 38,
+                question: "¿Qué tipo de centrales instala AMR en sistemas de alarma?",
+                options: ["Centrales básicas análogas", "Centrales domotizadas inteligentes", "Solo sirenas"],
+                correct: 1,
+                explanation: "AMR instala centrales domotizadas que permiten control inteligente y remoto."
+            },
+            {
+                id: 39,
+                question: "¿Para qué tipo de clientes es ideal el servicio de paneles solares de AMR?",
+                options: ["Solo grandes industrias", "Campo y zonas rurales", "Únicamente edificios urbanos"],
+                correct: 1,
+                explanation: "Los paneles solares con transmisión de datos son ideales para el campo donde se necesita monitoreo remoto."
+            },
+            {
+                id: 40,
+                question: "¿Qué característica tienen los sistemas de video de AMR para industrias?",
+                options: ["Son sistemas básicos", "Integrados con detección de incendio", "Solo grabación local"],
+                correct: 1,
+                explanation: "En proyectos como SECCO, AMR integra video vigilancia con sistemas de detección de incendio."
+            },
+            {
+                id: 41,
+                question: "¿Qué componentes incluye un sistema completo de incendio de AMR?",
+                options: ["Solo extintores", "Redes, detección, alarma y extinción", "Únicamente detectores"],
+                correct: 1,
+                explanation: "AMR instala sistemas integrales: redes hidráulicas, detección temprana, alarma y sistemas de extinción."
+            },
+            {
+                id: 42,
+                question: "¿Qué ventaja ofrece la gestión móvil de alarmas de AMR?",
+                options: ["Solo notificaciones", "Control total remoto del sistema", "Únicamente ver estado"],
+                correct: 1,
+                explanation: "Las apps permiten gestión completa: activar, desactivar, configurar y recibir alertas en tiempo real."
+            },
+            {
+                id: 43,
+                question: "¿Qué escala de proyectos eléctricos maneja AMR?",
+                options: ["Solo instalaciones pequeñas", "Desde baja hasta media tensión", "Únicamente iluminación"],
+                correct: 1,
+                explanation: "AMR maneja desde corrientes débiles hasta tendidos de media tensión en grandes proyectos."
+            },
+            {
+                id: 44,
+                question: "¿Qué tipo de automatización industrial ofrece AMR?",
+                options: ["Solo control manual", "Sistemas automatizados para procesos de fábrica", "Únicamente sensores"],
+                correct: 1,
+                explanation: "AMR automatiza sistemas completos de fábrica, integrando control de procesos industriales."
+            },
+            {
+                id: 45,
+                question: "¿Qué incluye el servicio de 'Seguridad Integral' de AMR?",
+                options: ["Solo cámaras", "Video, alarmas, control de acceso y detección", "Únicamente guardias"],
+                correct: 1,
+                explanation: "Seguridad Integral incluye video vigilancia, alarmas domotizadas, control de acceso y sistemas de detección."
+            },
+            // Preguntas de integración y conocimiento general (46-50)
+            {
+                id: 46,
+                question: "¿Qué diferencia a AMR de otras empresas de ingeniería?",
+                options: ["Solo hace un tipo de trabajo", "Integración de servicios desde diseño a implementación", "Solo es contratista"],
+                correct: 1,
+                explanation: "AMR ofrece gestión integral de proyectos, desde la concepción y diseño hasta la implementación completa."
+            },
+            {
+                id: 47,
+                question: "¿Qué tipo de tecnología caracteriza los servicios de AMR?",
+                options: ["Tecnología obsoleta", "Soluciones tecnológicas modernas y domotizadas", "Solo métodos tradicionales"],
+                correct: 1,
+                explanation: "AMR se especializa en soluciones modernas: domotización, apps móviles, transmisión de datos y automatización."
+            },
+            {
+                id: 48,
+                question: "¿En qué sectores económicos tiene presencia AMR?",
+                options: ["Solo residencial", "Comercial, industrial y agropecuario", "Únicamente servicios"],
+                correct: 1,
+                explanation: "AMR trabaja en shoppings (comercial), plantas industriales (industrial) y campo (agropecuario)."
+            },
+            {
+                id: 49,
+                question: "¿Qué garantiza AMR en sus proyectos industriales?",
+                options: ["Solo instalación básica", "Gestión integral con seguimiento completo", "Únicamente venta de materiales"],
+                correct: 1,
+                explanation: "AMR gestiona proyectos de forma integral, asegurando calidad desde la concepción hasta la puesta en marcha."
+            },
+            {
+                id: 50,
+                question: "¿Cómo se posiciona AMR en el mercado rosarino?",
+                options: ["Como contratista básico", "Como empresa tecnológica integral del Polo Tecnológico", "Solo como proveedor"],
+                correct: 1,
+                explanation: "AMR es miembro del Polo Tecnológico Rosario, posicionándose como empresa de soluciones tecnológicas integrales."
+            }
+        ];
+
+        class TriviaGame {
+            constructor() {
+                this.playerName = '';
+                this.currentQuestionIndex = 0;
+                this.globalQuestionIndex = 0;
+                this.score = 0;
+                this.questionsPerGame = 5;
+                this.timeLeft = 15;
+                this.timerInterval = null;
+                this.selectedAnswer = null;
+                this.answered = false;
+                this.gameStarted = false;
+                this.gameQuestions = [];
+                this.loadLeaderboard();
+                this.render();
+            }
+
+            loadLeaderboard() {
+                const stored = localStorage.getItem('amr_leaderboard');
+                this.leaderboard = stored ? JSON.parse(stored) : [];
+            }
+
+            saveLeaderboard() {
+                localStorage.setItem('amr_leaderboard', JSON.stringify(this.leaderboard));
+            }
+
+            startGame() {
+                const input = document.getElementById('playerNameInput');
+                if (!input || !input.value.trim()) {
+                    alert('Por favor, ingresá tu nombre para comenzar');
+                    return;
+                }
+                
+                this.playerName = input.value.trim();
+                this.gameStarted = true;
+                this.selectQuestions();
+                this.startTimer();
+                this.render();
+            }
+
+            selectQuestions() {
+                // Seleccionar 5 preguntas secuenciales desde el índice global
+                this.gameQuestions = [];
+                for (let i = 0; i < this.questionsPerGame; i++) {
+                    const questionIndex = (this.globalQuestionIndex + i) % allQuestions.length;
+                    const originalQuestion = {...allQuestions[questionIndex]};
+                    
+                    // Mezclar las opciones aleatoriamente
+                    const shuffledQuestion = this.shuffleOptions(originalQuestion);
+                    this.gameQuestions.push(shuffledQuestion);
+                }
+                // Actualizar índice global para la próxima partida
+                this.globalQuestionIndex = (this.globalQuestionIndex + this.questionsPerGame) % allQuestions.length;
+            }
+
+            shuffleOptions(question) {
+                // Crear un array de objetos con opción y su índice original
+                const optionsWithIndex = question.options.map((option, index) => ({
+                    text: option,
+                    isCorrect: index === question.correct
+                }));
+                
+                // Mezclar el array usando algoritmo Fisher-Yates
+                for (let i = optionsWithIndex.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [optionsWithIndex[i], optionsWithIndex[j]] = [optionsWithIndex[j], optionsWithIndex[i]];
+                }
+                
+                // Extraer las opciones mezcladas y encontrar el nuevo índice correcto
+                const shuffledOptions = optionsWithIndex.map(item => item.text);
+                const newCorrectIndex = optionsWithIndex.findIndex(item => item.isCorrect);
+                
+                return {
+                    ...question,
+                    options: shuffledOptions,
+                    correct: newCorrectIndex
+                };
+            }
+
+            startTimer() {
+                this.timeLeft = 15;
+                this.stopTimer();
+                this.timerInterval = setInterval(() => {
+                    this.timeLeft--;
+                    this.updateTimer();
+                    
+                    if (this.timeLeft <= 0) {
+                        this.timeUp();
+                    }
+                }, 1000);
+            }
+
+            stopTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            }
+
+            updateTimer() {
+                const timerElement = document.getElementById('timer');
+                const timerValue = document.getElementById('timerValue');
+                
+                if (timerElement && timerValue) {
+                    timerValue.textContent = this.timeLeft;
+                    
+                    timerElement.classList.remove('warning', 'danger');
+                    if (this.timeLeft <= 5) {
+                        timerElement.classList.add('danger');
+                    } else if (this.timeLeft <= 10) {
+                        timerElement.classList.add('warning');
+                    }
+                }
+            }
+
+            getPoints() {
+                if (this.timeLeft > 10) return 3;
+                if (this.timeLeft > 5) return 2;
+                return 1;
+            }
+
+            selectOption(index) {
+                if (this.answered) return;
+                this.selectedAnswer = index;
+                this.submitAnswer();
+            }
+
+            submitAnswer() {
+                if (this.answered) return;
+                
+                this.stopTimer();
+                this.answered = true;
+                
+                const question = this.gameQuestions[this.currentQuestionIndex];
+                const isCorrect = this.selectedAnswer === question.correct;
+                
+                if (isCorrect) {
+                    const points = this.getPoints();
+                    this.score += points;
+                }
+                
+                this.render();
+            }
+
+            timeUp() {
+                this.stopTimer();
+                if (!this.answered) {
+                    this.answered = true;
+                    this.selectedAnswer = -1; // Marca como tiempo agotado
+                    this.render();
+                }
+            }
+
+            nextQuestion() {
+                this.currentQuestionIndex++;
+                this.selectedAnswer = null;
+                this.answered = false;
+
+                if (this.currentQuestionIndex >= this.questionsPerGame) {
+                    this.endGame();
+                } else {
+                    this.startTimer();
+                    this.render();
+                }
+            }
+
+            endGame() {
+                this.stopTimer();
+                const entry = {
+                    name: this.playerName,
+                    score: this.score,
+                    date: new Date().toLocaleString('es-AR'),
+                    questions: this.questionsPerGame
+                };
+                
+                this.leaderboard.push(entry);
+                this.leaderboard.sort((a, b) => b.score - a.score);
+                this.leaderboard = this.leaderboard.slice(0, 10); // Top 10
+                this.saveLeaderboard();
+                
+                this.render();
+            }
+
+            restart() {
+                this.playerName = '';
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.selectedAnswer = null;
+                this.answered = false;
+                this.gameStarted = false;
+                this.stopTimer();
+                this.render();
+            }
+
+            render() {
+                const appDiv = document.getElementById('app');
+
+                // Pantalla inicial
+                if (!this.gameStarted) {
+                    appDiv.innerHTML = `
+                        <div class="card">
+                            <div class="start-screen">
+                                <h2 class="start-title">🎯 Desafío de Velocidad AMR</h2>
+                                <p class="start-description">
+                                    ¡Demostrá cuánto conocés sobre AMR Ingeniería respondiendo en el menor tiempo posible!
+                                </p>
+                                
+                                <div class="player-input-container">
+                                    <input 
+                                        type="text" 
+                                        id="playerNameInput" 
+                                        class="player-input" 
+                                        placeholder="Ingresá tu nombre"
+                                        maxlength="20"
+                                        onkeypress="if(event.key==='Enter') game.startGame()"
+                                    />
+                                </div>
+
+                                <div class="rules-grid">
+                                    <div class="rule">
+                                        <div class="rule-icon">⏱️</div>
+                                        <div class="rule-text">15 segundos por pregunta</div>
+                                    </div>
+                                    <div class="rule">
+                                        <div class="rule-icon">🎯</div>
+                                        <div class="rule-text">${this.questionsPerGame} preguntas por partida</div>
+                                    </div>
+                                    <div class="rule">
+                                        <div class="rule-icon">⚡</div>
+                                        <div class="rule-text">3 pts (0-5s) • 2 pts (6-10s) • 1 pt (11-15s)</div>
+                                    </div>
+                                    <div class="rule">
+                                        <div class="rule-icon">🏆</div>
+                                        <div class="rule-text">¡Entrá al ranking de los mejores!</div>
+                                    </div>
+                                </div>
+
+                                <div class="button-container">
+                                    <button class="btn" onclick="game.startGame()">
+                                        🚀 Comenzar Juego
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${this.renderLeaderboard(false)}
+                    `;
+                    return;
+                }
+
+                // Pantalla final
+                if (this.currentQuestionIndex >= this.questionsPerGame) {
+                    const maxScore = this.questionsPerGame * 3;
+                    const percentage = (this.score / maxScore) * 100;
+                    let message, icon;
+
+                    if (percentage === 100) {
+                        message = "¡PERFECTO! ¡Velocidad y precisión máxima! 🏆";
+                        icon = "🌟";
+                    } else if (percentage >= 80) {
+                        message = "¡Excelente! ¡Sos muy rápido y preciso! 💪";
+                        icon = "🎉";
+                    } else if (percentage >= 60) {
+                        message = "¡Muy bien! Buen tiempo de respuesta 👍";
+                        icon = "✨";
+                    } else if (percentage >= 40) {
+                        message = "¡Bien! Podés mejorar tu velocidad 📚";
+                        icon = "💡";
+                    } else {
+                        message = "¡Seguí practicando para mejorar! 🎯";
+                        icon = "🔥";
+                    }
+
+                    appDiv.innerHTML = `
+                        <div class="stats-bar">
+                            <div class="stat">
+                                <div class="stat-label">Puntaje Final</div>
+                                <div class="stat-value">${this.score}/${maxScore}</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-label">Jugador</div>
+                                <div class="stat-value" style="font-size: 1.3rem;">${this.playerName}</div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="result-card">
+                                <div class="result-icon">${icon}</div>
+                                <h2 class="result-title">¡Partida Completada!</h2>
+                                <div class="result-score">${this.score} pts</div>
+                                <p class="result-message">${message}</p>
+
+                                <div class="button-container">
+                                    <button class="btn" onclick="game.restart()">
+                                        🔄 Nueva Partida
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${this.renderLeaderboard(true)}
+                    `;
+                    return;
+                }
+
+                // Pantalla de juego
+                const question = this.gameQuestions[this.currentQuestionIndex];
+                const cardId = question.id;
+
+                appDiv.innerHTML = `
+                    <div class="stats-bar">
+                        <div class="stat">
+                            <div class="stat-label">Pregunta</div>
+                            <div class="stat-value">${this.currentQuestionIndex + 1}/${this.questionsPerGame}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Jugador</div>
+                            <div class="stat-value" style="font-size: 1.3rem;">${this.playerName}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Puntaje</div>
+                            <div class="stat-value">${this.score}</div>
+                        </div>
+                    </div>
+
+                    <div class="timer-container">
+                        <div id="timer" class="timer">
+                            <div id="timerValue" class="timer-value">${this.timeLeft}</div>
+                            <div class="timer-label">segundos</div>
+                        </div>
+                    </div>
+
+                    <div class="card-container">
+                        <div class="card">
+                            ${this.answered && this.selectedAnswer === question.correct ? 
+                                `<div class="points-indicator">+${this.getPoints()} puntos</div>` : ''}
+                            
+                            <div class="question-header">
+                                <span class="question-number">PREGUNTA ${this.currentQuestionIndex + 1}</span>
+                                <span class="card-number">Tarjeta #${cardId}</span>
+                            </div>
+
+                            <h3 class="question-text">${question.question}</h3>
+
+                            <div class="options">
+                                ${question.options.map((option, index) => {
+                                    let className = 'option';
+                                    if (this.answered) {
+                                        className += ' disabled';
+                                        if (index === question.correct) {
+                                            className += ' correct';
+                                        } else if (index === this.selectedAnswer && index !== question.correct) {
+                                            className += ' incorrect';
+                                        }
+                                    } else if (this.selectedAnswer === index) {
+                                        className += ' selected';
+                                    }
+                                    return `
+                                        <div class="${className}" onclick="game.selectOption(${index})">
+                                            <strong>${String.fromCharCode(65 + index)}.</strong> ${option}
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+
+                            ${this.answered ? `
+                                <div style="margin-top: 1.5rem; padding: 1.5rem; background: rgba(0, 212, 255, 0.1); border-radius: 15px; border-left: 4px solid var(--secondary);">
+                                    <strong style="color: var(--secondary);">💡 Explicación:</strong><br/>
+                                    <span style="color: var(--light); font-size: 1.1rem;">${question.explanation}</span>
+                                </div>
+                            ` : ''}
+
+                            ${this.answered ? `
+                                <div class="button-container">
+                                    <button class="btn" onclick="game.nextQuestion()">
+                                        ${this.currentQuestionIndex < this.questionsPerGame - 1 ? 
+                                            '→ Siguiente Pregunta' : 
+                                            '🏁 Ver Resultados'}
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderLeaderboard(highlight = false) {
+                if (this.leaderboard.length === 0) {
+                    return '';
+                }
+
+                const currentPlayerScore = highlight ? this.score : null;
+
+                return `
+                    <div class="leaderboard">
+                        <h3 class="leaderboard-title">🏆 Ranking de los Mejores</h3>
+                        <ul class="leaderboard-list">
+                            ${this.leaderboard.map((entry, index) => {
+                                const isCurrentPlayer = highlight && 
+                                    entry.name === this.playerName && 
+                                    entry.score === currentPlayerScore &&
+                                    index === this.leaderboard.findIndex(e => 
+                                        e.name === this.playerName && e.score === currentPlayerScore
+                                    );
+                                
+                                let rankClass = '';
+                                if (index === 0) rankClass = 'gold';
+                                else if (index === 1) rankClass = 'silver';
+                                else if (index === 2) rankClass = 'bronze';
+
+                                return `
+                                    <li class="leaderboard-item ${isCurrentPlayer ? 'highlight' : ''}">
+                                        <span class="leaderboard-rank ${rankClass}">
+                                            ${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
+                                        </span>
+                                        <span class="leaderboard-player">${entry.name}</span>
+                                        <span class="leaderboard-score">${entry.score} pts</span>
+                                        <span class="leaderboard-details">${entry.date}</span>
+                                    </li>
+                                `;
+                            }).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+
+        // Inicializar juego
+        let game = new TriviaGame();
+    </script>
+</body>
+</html>
